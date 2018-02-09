@@ -1,6 +1,6 @@
 name: just_debounce_it
 description: A simple debounce library
-version: 1.0.2
+version: 1.0.3
 homepage: https://github.com/localhurst/just_debounce_it
 author: Matthew Hurst <localhurst@gmail.com>
 

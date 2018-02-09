@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.3
+
+  * Move project into repo. Fix typos in README.md.
+
 ## 1.0.2
 
   * Clean-up README.md.
