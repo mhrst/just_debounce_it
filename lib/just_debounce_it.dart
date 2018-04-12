@@ -7,14 +7,15 @@ Map<Function, Timer> timeouts = <Function, Timer>{};
 
 /// A collection of of static functions to debounce calls to a target function.
 class Debounce {
-
   /// Calls [duration] with a timeout specified in milliseconds.
-  static void milliseconds(int timeoutMs, Function target, [List<dynamic> args]) {
+  static void milliseconds(int timeoutMs, Function target,
+      [List<dynamic> args]) {
     duration(new Duration(milliseconds: timeoutMs), target, args);
   }
 
   /// Calls [duration] with a timeout specified in seconds.
-  static void seconds(int timeoutSeconds, Function target, [List<dynamic> args]) {
+  static void seconds(int timeoutSeconds, Function target,
+      [List<dynamic> args]) {
     duration(new Duration(seconds: timeoutSeconds), target, args);
   }
 
@@ -22,8 +23,8 @@ class Debounce {
   ///
   /// Repeated calls to [duration] (or any debounce operation in this library)
   /// with the same [Function target] will reset the specified [timeout].
-  static void duration(Duration timeout, Function target, [List<dynamic> args]) {
-
+  static void duration(Duration timeout, Function target,
+      [List<dynamic> args]) {
     if (timeouts.containsKey(target)) {
       timeouts[target].cancel();
     }

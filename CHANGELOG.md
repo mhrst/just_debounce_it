@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.4
+
+  * Run `dartfmt`.
+  * Adjust `analysis_options.yaml` and fix issues.
+  * Add travis YAML.
+
 ## 1.0.3
 
   * Move project into repo. Fix typos in README.md.

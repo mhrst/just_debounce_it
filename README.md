@@ -1,5 +1,7 @@
 # just_debounce_it
 
+[![Build Status](https://api.travis-ci.org/localhurst/just_debounce_it.svg?branch=master)](https://travis-ci.org/localhurst/just_debounce_it)
+
 A simple debounce library.
 
 ```dart
