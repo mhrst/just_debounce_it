@@ -73,4 +73,23 @@ void main() {
       expect(counter, equals(0));
     });
   });
+
+  group('`Debounce.runAndClear', () {
+    int counter;
+    setUp(() => counter = 0);
+    int target() => counter = counter + 1;
+    
+    test('Should immediately execute debounced target', () {
+      debounceIt(Debounce.seconds, target, seconds: debounceSeconds);
+      Debounce.runAndClear(target);
+      expect(counter, equals(1));
+    });
+
+    test('Should NOT execute after being cleared', () async {
+      final future = debounceIt(Debounce.seconds, target, seconds: debounceSeconds);
+      Debounce.runAndClear(target);
+      await future;
+      expect(counter, equals(1));
+    });
+  });
 }
