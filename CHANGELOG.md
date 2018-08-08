@@ -1,10 +1,15 @@
 # Changelog
 
+## 2.0.0
+  * Update dependencies for Dart 2.0.
+  * Remove explicity analysis options YAML.
+  * Add `runAndClear` method to immediately dispatch a debounced target.
+
 ## 1.0.4
 
   * Run `dartfmt`.
   * Adjust `analysis_options.yaml` and fix issues.
-  * Add travis YAML.
+  * Add travis YAML. 
 
 ## 1.0.3
 
