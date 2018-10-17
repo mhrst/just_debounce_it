@@ -1,10 +1,5 @@
 library just_debounce_it;
 
-// Copied from Matt's git repo: https://github.com/localhurst/just_debounce_it
-//
-// Modified to allow pending target functions to be forced to run before
-// scheduled.
-
 import 'dart:async';
 
 /// Map of functions currently being debounced.
