@@ -37,7 +37,7 @@ class Debounce {
   /// Run a function which is already debounced (queued to be run later),
   /// but run it now. This also cancels and clears out the timeout for
   /// that function.
-  /// 
+  ///
   /// If [args] is not null or empty, a new version of [target] will be
   /// called with those arguments.
   static void runAndClear(Function target, [List<dynamic> args]) {
@@ -45,9 +45,10 @@ class Debounce {
       if (args == null || args.isEmpty) {
         timeouts[target].runNow();
       } else {
+        final timer = timeouts.remove(target);
+        timer.cancel();
         Function.apply(target, args);
       }
-      timeouts.remove(target);
     }
   }
 
