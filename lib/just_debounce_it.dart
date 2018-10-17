@@ -1,5 +1,10 @@
 library just_debounce_it;
 
+// Copied from Matt's git repo: https://github.com/localhurst/just_debounce_it
+//
+// Modified to allow pending target functions to be forced to run before
+// scheduled.
+
 import 'dart:async';
 
 /// Map of functions currently being debounced.
@@ -7,6 +12,18 @@ Map<Function, _DebounceTimer> timeouts = <Function, _DebounceTimer>{};
 
 /// A collection of of static functions to debounce calls to a target function.
 class Debounce {
+  /// Calls [duration] with a timeout specified in milliseconds.
+  static void milliseconds(int timeoutMs, Function target,
+      [List<dynamic> args]) {
+    duration(Duration(milliseconds: timeoutMs), target, args);
+  }
+
+  /// Calls [duration] with a timeout specified in seconds.
+  static void seconds(int timeoutSeconds, Function target,
+      [List<dynamic> args]) {
+    duration(Duration(seconds: timeoutSeconds), target, args);
+  }
+
   /// Calls [target] with the latest supplied [args] after a [timeout] duration.
   ///
   /// Repeated calls to [duration] (or any debounce operation in this library)
@@ -17,31 +34,37 @@ class Debounce {
       timeouts[target].cancel();
     }
 
-    final _DebounceTimer timer = new _DebounceTimer(timeout, target, args);
+    final _DebounceTimer timer = _DebounceTimer(timeout, target, args);
 
     timeouts[target] = timer;
-  }
-
-  /// Calls [duration] with a timeout specified in milliseconds.
-  static void milliseconds(int timeoutMs, Function target,
-      [List<dynamic> args]) {
-    duration(new Duration(milliseconds: timeoutMs), target, args);
   }
 
   /// Run a function which is already debounced (queued to be run later),
   /// but run it now. This also cancels and clears out the timeout for
   /// that function.
-  static void runAndClear(Function target) {
+  /// 
+  /// If [args] is not null or empty, a new version of [target] will be
+  /// called with those arguments.
+  static void runAndClear(Function target, [List<dynamic> args]) {
     if (timeouts.containsKey(target)) {
-      timeouts[target].runNow();
+      if (args == null || args.isEmpty) {
+        timeouts[target].runNow();
+      } else {
+        Function.apply(target, args);
+      }
       timeouts.remove(target);
     }
   }
 
-  /// Calls [duration] with a timeout specified in seconds.
-  static void seconds(int timeoutSeconds, Function target,
-      [List<dynamic> args]) {
-    duration(new Duration(seconds: timeoutSeconds), target, args);
+  /// Clear a function that has been debounced. Returns [true] if
+  /// a debounced function has been removed.
+  static bool clear(Function target) {
+    if (timeouts.containsKey(target)) {
+      timeouts.remove(target);
+      return true;
+    }
+
+    return false;
   }
 }
 
@@ -55,17 +78,17 @@ class _DebounceTimer {
   _DebounceTimer(Duration timeout, Function target, List<dynamic> args) {
     _target = target;
     _args = args;
-    timer = new Timer(timeout, () {
+    timer = Timer(timeout, () {
       Function.apply(_target, _args);
     });
-  }
-
-  void cancel() {
-    timer.cancel();
   }
 
   void runNow() {
     cancel();
     Function.apply(_target, _args);
+  }
+
+  void cancel() {
+    timer.cancel();
   }
 }
