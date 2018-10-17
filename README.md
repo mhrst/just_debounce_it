@@ -24,10 +24,15 @@ Debounce.milliseconds(int timeoutMs, Function target, [List<dynamic> args])
 Debounce.duration(Duration timeout, Function target, [List<dynamic> args])
 ```
 
-And one method exists for immediately dispatching a `target` that has previously been debounced:
-
+To immediately dispatch a `target` that has previously been debounced, use `runAndClear`.
+Optional `args` can be provided to override the debounced arguments:
 ```dart
-Debounce.runAndClear(Function target)
+Debounce.runAndClear(Function target, [List<dynamic> args])
+```
+
+To clear a debounced `target`:
+```dart
+Debounce.clear(Function target)
 ```
 
 ## Example
