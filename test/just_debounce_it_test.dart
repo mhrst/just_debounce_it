@@ -12,8 +12,8 @@ void main() {
       {Duration duration, int milliseconds, int seconds}) {
     // Call debounceFn multiple times
     for (var i = 0; i < debounceIterations; i++) {
-      Function
-          .apply(debounceFn, [duration ?? milliseconds ?? seconds, targetFn]);
+      Function.apply(
+          debounceFn, [duration ?? milliseconds ?? seconds, targetFn]);
     }
 
     duration ??= new Duration(milliseconds: milliseconds ?? (seconds * 1000));
@@ -77,19 +77,41 @@ void main() {
   group('`Debounce.runAndClear', () {
     int counter;
     setUp(() => counter = 0);
-    int target() => counter = counter + 1;
-    
-    test('Should immediately execute debounced target', () {
-      debounceIt(Debounce.seconds, target, seconds: debounceSeconds);
-      Debounce.runAndClear(target);
-      expect(counter, equals(1));
-    });
+    int target([int increment = 1]) => counter = counter + increment;
 
-    test('Should NOT execute after being cleared', () async {
+    test('Should immediately execute debounced target', () async {
       final future = debounceIt(Debounce.seconds, target, seconds: debounceSeconds);
       Debounce.runAndClear(target);
       await future;
       expect(counter, equals(1));
+    });
+
+    test('Should execute debounced target with new args', () async {
+      final future = debounceIt(Debounce.seconds, target, seconds: debounceSeconds);
+      Debounce.runAndClear(target, [2]);
+      await future;
+      expect(counter, equals(2));
+    });
+
+
+    test('Should NOT execute after being cleared', () async {
+      final future =
+          debounceIt(Debounce.seconds, target, seconds: debounceSeconds);
+      Debounce.runAndClear(target);
+      await future;
+      expect(counter, equals(1));
+    });
+  });
+
+  group('`Debounce.clear', () {
+    int counter;
+    setUp(() => counter = 0);
+    int target() => counter = counter + 1;
+
+    test('Should cancel debounced target', () {
+      debounceIt(Debounce.seconds, target, seconds: debounceSeconds);
+      Debounce.clear(target);
+      expect(counter, equals(0));
     });
   });
 }
