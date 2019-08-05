@@ -68,16 +68,17 @@ class Debounce {
 class _DebounceTimer {
   final Timer timer;
   final Function target;
-  final List<dynamic> args;
+  final List<dynamic> positionalArguments;
+  final Map<Symbol, dynamic> namedArguments;
 
-  _DebounceTimer(Duration timeout, this.target, this.args)
+  _DebounceTimer(Duration timeout, this.target, this.positionalArguments, this.namedArguments)
       : timer = Timer(timeout, () {
-          Function.apply(target, args);
+          Function.apply(target, positionalArguments, namedArguments);
         });
 
   void runNow() {
     cancel();
-    Function.apply(target, args);
+    Function.apply(target, positionalArguments, namedArguments);
   }
 
   void cancel() {
