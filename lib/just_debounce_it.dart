@@ -9,14 +9,14 @@ Map<Function, _DebounceTimer> timeouts = <Function, _DebounceTimer>{};
 class Debounce {
   /// Calls [duration] with a timeout specified in milliseconds.
   static void milliseconds(int timeoutMs, Function target,
-      [List<dynamic> args]) {
-    duration(Duration(milliseconds: timeoutMs), target, args);
+      [List<dynamic> positionalArguments, Map<Symbol, dynamic> namedArguments]) {
+    duration(Duration(milliseconds: timeoutMs), target, positionalArguments, namedArguments);
   }
 
   /// Calls [duration] with a timeout specified in seconds.
   static void seconds(int timeoutSeconds, Function target,
-      [List<dynamic> args]) {
-    duration(Duration(seconds: timeoutSeconds), target, args);
+      [List<dynamic> positionalArguments, Map<Symbol, dynamic> namedArguments]) {
+    duration(Duration(seconds: timeoutSeconds), target, positionalArguments, namedArguments);
   }
 
   /// Calls [target] with the latest supplied [args] after a [timeout] duration.
@@ -24,12 +24,12 @@ class Debounce {
   /// Repeated calls to [duration] (or any debounce operation in this library)
   /// with the same [Function target] will reset the specified [timeout].
   static void duration(Duration timeout, Function target,
-      [List<dynamic> args]) {
+      [List<dynamic> positionalArguments, Map<Symbol, dynamic> namedArguments]) {
     if (timeouts.containsKey(target)) {
       timeouts[target].cancel();
     }
 
-    final _DebounceTimer timer = _DebounceTimer(timeout, target, args);
+    final _DebounceTimer timer = _DebounceTimer(timeout, target, positionalArguments, namedArguments);
 
     timeouts[target] = timer;
   }
@@ -38,14 +38,15 @@ class Debounce {
   /// but run it now. This also cancels and clears out the timeout for
   /// that function.
   ///
-  /// If [args] is not null or empty, a new version of [target] will be
-  /// called with those arguments.
-  static void runAndClear(Function target, [List<dynamic> args]) {
+  /// If [positionalArguments] and [namedArguments] is not null or empty, 
+  /// a new version of [target] will be called with those arguments.
+  static void runAndClear(Function target, [List<dynamic> positionalArguments, Map<Symbol, dynamic> namedArguments]) {
     if (timeouts.containsKey(target)) {
-      if (args == null || args.isEmpty) {
+      if (positionalArguments?.isEmpty == true && namedArguments?.isEmpty == true) {
         timeouts[target].runNow();
       } else {
-        Function.apply(target, args);
+        timeouts[target].cancel();
+        Function.apply(target, positionalArguments, namedArguments);
       }
       timeouts.remove(target);
     }
@@ -71,7 +72,7 @@ class _DebounceTimer {
   final List<dynamic> positionalArguments;
   final Map<Symbol, dynamic> namedArguments;
 
-  _DebounceTimer(Duration timeout, this.target, this.positionalArguments, this.namedArguments)
+  _DebounceTimer(Duration timeout, this.target, [this.positionalArguments, this.namedArguments])
       : timer = Timer(timeout, () {
           Function.apply(target, positionalArguments, namedArguments);
         });
