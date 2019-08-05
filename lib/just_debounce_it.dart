@@ -45,10 +45,9 @@ class Debounce {
       if (args == null || args.isEmpty) {
         timeouts[target].runNow();
       } else {
-        final timer = timeouts.remove(target);
-        timer.cancel();
         Function.apply(target, args);
       }
+      timeouts.remove(target);
     }
   }
 
@@ -67,21 +66,18 @@ class Debounce {
 // _DebounceTimer allows us to keep track of the target function
 // along with it's timer.
 class _DebounceTimer {
-  Timer timer;
-  Function _target;
-  List<dynamic> _args;
+  final Timer timer;
+  final Function target;
+  final List<dynamic> args;
 
-  _DebounceTimer(Duration timeout, Function target, List<dynamic> args) {
-    _target = target;
-    _args = args;
-    timer = Timer(timeout, () {
-      Function.apply(_target, _args);
-    });
-  }
+  _DebounceTimer(Duration timeout, this.target, this.args)
+      : timer = Timer(timeout, () {
+          Function.apply(target, args);
+        });
 
   void runNow() {
     cancel();
-    Function.apply(_target, _args);
+    Function.apply(target, args);
   }
 
   void cancel() {
