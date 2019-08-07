@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.0+1
+  * Moved repo to main github account (@truthmast)
+  * Allow the use of named arguments
+      * Arguments are passed as `Map<Symbol, dynamic>` -- using `Symbol` is more error proof than allowing a `String` but not as user friendly. TODO: Parse `Map<String, dynamic>`, but that will be a breaking change for major version `4`
+
 ## 2.0.0
   * Update dependencies for Dart 2.0.
   * Remove explicity analysis options YAML.
