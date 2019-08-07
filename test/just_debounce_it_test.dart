@@ -5,113 +5,276 @@ import 'package:test/test.dart';
 import 'package:just_debounce_it/just_debounce_it.dart';
 
 void main() {
-  final debounceSeconds = 1;
   final debounceIterations = 1000;
+  final debounceSeconds = 1;
+  final debounceMilliseconds = 1000;
+  final debounceDuration = Duration(seconds: debounceSeconds);
 
-  Future<int> debounceIt(Function debounceFn, Function targetFn,
-      {Duration duration, int milliseconds, int seconds}) {
+  int _counter;
+  setUp(() => _counter = 0);
+  int _targetNoArgs() => _counter = _counter + 1;
+  int _target(int incrementBy, {int multiplier}) =>
+      _counter = (_counter + incrementBy) * (multiplier ?? 1);
+  int _targetNamedOnly({int multiplier}) =>
+      _counter = (_counter + 1) * (multiplier ?? 1);
+  tearDown(() {
+    Debounce.clear(_target);
+    Debounce.clear(_targetNoArgs);
+    Debounce.clear(_targetNamedOnly);
+  });
+
+  void debounceIt(Function debounceFn) {
     // Call debounceFn multiple times
     for (var i = 0; i < debounceIterations; i++) {
-      Function.apply(
-          debounceFn, [duration ?? milliseconds ?? seconds, targetFn]);
+      debounceFn();
     }
-
-    duration ??= new Duration(milliseconds: milliseconds ?? (seconds * 1000));
-
-    return new Future.delayed(duration);
   }
 
-  group('`Debounce.duration', () {
-    int counter;
-    setUp(() => counter = 0);
-    int target() => counter = counter + 1;
-    final duration = new Duration(seconds: debounceSeconds);
+  group('Debounce.duration', () {
+    group('without arguments', () {
+      test('Should increment counter only once after repeated calls to target',
+          () async {
+        debounceIt(() => Debounce.duration(debounceDuration, _targetNoArgs));
+        await Future.delayed(debounceDuration);
+        expect(_counter, equals(1));
+      });
 
-    test('Should increment counter only once after repeated calls to target',
-        () async {
-      await debounceIt(Debounce.duration, target, duration: duration);
-      expect(counter, equals(1));
+      test('Should NOT increment counter before specified duration', () {
+        debounceIt(() => Debounce.duration(debounceDuration, _targetNoArgs));
+        expect(_counter, equals(0));
+      });
     });
+    group('with positional arguments', () {
+      test('Should increment counter only once after repeated calls to target',
+          () async {
+        debounceIt(() => Debounce.duration(debounceDuration, _target, [2]));
+        await Future.delayed(debounceDuration);
+        expect(_counter, equals(2));
+      });
 
-    test('Should NOT increment counter before specified duration', () {
-      debounceIt(Debounce.duration, target, duration: duration);
-      expect(counter, equals(0));
+      test('Should NOT increment counter before specified duration', () {
+        debounceIt(() => Debounce.duration(debounceDuration, _target, [2]));
+        expect(_counter, equals(0));
+      });
+    });
+    group('with named arguments', () {
+      test('Should increment counter only once after repeated calls to target',
+          () async {
+        debounceIt(() => Debounce.duration(
+            debounceDuration, _targetNamedOnly, [], {Symbol("multiplier"): 2}));
+        await Future.delayed(debounceDuration);
+        expect(_counter, equals(2));
+      });
+
+      test('Should NOT increment counter before specified duration', () {
+        debounceIt(() => Debounce.duration(
+            debounceDuration, _target, [], {Symbol("multiplier"): 2}));
+        expect(_counter, equals(0));
+      });
+    });
+    group('with named and positional arguments', () {
+      test('Should increment counter only once after repeated calls to target',
+          () async {
+        debounceIt(() => Debounce.duration(
+            debounceDuration, _target, [2], {Symbol("multiplier"): 2}));
+        await Future.delayed(debounceDuration);
+        expect(_counter, equals(4));
+      });
+
+      test('Should NOT increment counter before specified duration', () {
+        debounceIt(() => Debounce.duration(
+            debounceDuration, _target, [2], {Symbol("multiplier"): 2}));
+        expect(_counter, equals(0));
+      });
     });
   });
 
   group('`Debounce.milliseconds', () {
-    int counter;
-    setUp(() => counter = 0);
-    int target() => counter = counter + 1;
-    final durationMs = debounceSeconds * 1000;
+    group('without arguments', () {
+      test('Should increment counter only once after repeated calls to target',
+          () async {
+        debounceIt(
+            () => Debounce.milliseconds(debounceMilliseconds, _targetNoArgs));
+        await Future.delayed(debounceDuration);
+        expect(_counter, equals(1));
+      });
 
-    test('Should increment counter only once after repeated calls to target',
-        () async {
-      await debounceIt(Debounce.milliseconds, target, milliseconds: durationMs);
-      expect(counter, equals(1));
+      test('Should NOT increment counter before specified duration', () {
+        debounceIt(
+            () => Debounce.milliseconds(debounceMilliseconds, _targetNoArgs));
+        expect(_counter, equals(0));
+      });
     });
+    group('with positional arguments', () {
+      test('Should increment counter only once after repeated calls to target',
+          () async {
+        debounceIt(
+            () => Debounce.milliseconds(debounceMilliseconds, _target, [2]));
+        await Future.delayed(debounceDuration);
+        expect(_counter, equals(2));
+      });
 
-    test('Should NOT increment counter before specified duration', () {
-      debounceIt(Debounce.milliseconds, target, milliseconds: durationMs);
-      expect(counter, equals(0));
+      test('Should NOT increment counter before specified duration', () {
+        debounceIt(
+            () => Debounce.milliseconds(debounceMilliseconds, _target, [2]));
+        expect(_counter, equals(0));
+      });
+    });
+    group('with named arguments', () {
+      test('Should increment counter only once after repeated calls to target',
+          () async {
+        debounceIt(() => Debounce.milliseconds(debounceMilliseconds,
+            _targetNamedOnly, [], {Symbol("multiplier"): 2}));
+        await Future.delayed(debounceDuration);
+        expect(_counter, equals(2));
+      });
+
+      test('Should NOT increment counter before specified duration', () {
+        debounceIt(() => Debounce.milliseconds(debounceMilliseconds,
+            _targetNamedOnly, [], {Symbol("multiplier"): 2}));
+        expect(_counter, equals(0));
+      });
+    });
+    group('with named and positional arguments', () {
+      test('Should increment counter only once after repeated calls to target',
+          () async {
+        debounceIt(() => Debounce.milliseconds(
+            debounceMilliseconds, _target, [2], {Symbol("multiplier"): 2}));
+        await Future.delayed(debounceDuration);
+        expect(_counter, equals(4));
+      });
+
+      test('Should NOT increment counter before specified duration', () {
+        debounceIt(() => Debounce.milliseconds(
+            debounceMilliseconds, _target, [2], {Symbol("multiplier"): 2}));
+        expect(_counter, equals(0));
+      });
     });
   });
 
   group('`Debounce.seconds', () {
-    int counter;
-    setUp(() => counter = 0);
-    int target() => counter = counter + 1;
+    group('without arguments', () {
+      test('Should increment counter only once after repeated calls to target',
+          () async {
+        debounceIt(() => Debounce.seconds(debounceSeconds, _targetNoArgs));
+        await Future.delayed(debounceDuration);
+        expect(_counter, equals(1));
+      });
 
-    test('Should increment counter only once after repeated calls to target',
+      test('Should NOT increment counter before specified duration', () {
+        debounceIt(() => Debounce.seconds(debounceSeconds, _targetNoArgs));
+        expect(_counter, equals(0));
+      });
+    });
+    group('with positional arguments', () {
+      test('Should increment counter only once after repeated calls to target',
+          () async {
+        debounceIt(() => Debounce.seconds(debounceSeconds, _target, [2]));
+        await Future.delayed(debounceDuration);
+        expect(_counter, equals(2));
+      });
+
+      test('Should NOT increment counter before specified duration', () {
+        debounceIt(() => Debounce.seconds(debounceSeconds, _target, [2]));
+        expect(_counter, equals(0));
+      });
+    });
+    group('with named arguments', () {
+      test('Should increment counter only once after repeated calls to target',
+          () async {
+        debounceIt(() => Debounce.seconds(
+            debounceSeconds, _targetNamedOnly, [], {Symbol("multiplier"): 2}));
+        await Future.delayed(debounceDuration);
+        expect(_counter, equals(2));
+      });
+
+      test('Should NOT increment counter before specified duration', () {
+        debounceIt(() => Debounce.seconds(
+            debounceSeconds, _targetNamedOnly, [], {Symbol("multiplier"): 2}));
+        expect(_counter, equals(0));
+      });
+    });
+    group('with named and positional arguments', () {
+      test('Should increment counter only once after repeated calls to target',
+          () async {
+        debounceIt(() => Debounce.seconds(
+            debounceSeconds, _target, [2], {Symbol("multiplier"): 2}));
+        await Future.delayed(debounceDuration);
+        expect(_counter, equals(4));
+      });
+
+      test('Should NOT increment counter before specified duration', () {
+        debounceIt(() => Debounce.seconds(
+            debounceSeconds, _target, [2], {Symbol("multiplier"): 2}));
+        expect(_counter, equals(0));
+      });
+    });
+  });
+
+  group('Debounce.clear', () {
+    test('Should cancel debounced target', () async {
+      debounceIt(() => Debounce.duration(debounceDuration, _targetNoArgs));
+      Debounce.clear(_targetNoArgs);
+      await Future.delayed(debounceDuration);
+      expect(_counter, equals(0));
+    });
+  });
+
+  group('Debounce.runAndClear', () {
+    test('Should run debounced target immediately and cancel', () async {
+      debounceIt(() => Debounce.duration(debounceDuration, _targetNoArgs));
+      Debounce.runAndClear(_targetNoArgs);
+      await Future.delayed(debounceDuration);
+      expect(_counter, equals(1));
+    });
+
+    test('Should run debounced target with same positional arguments',
         () async {
-      await debounceIt(Debounce.seconds, target, seconds: debounceSeconds);
-      expect(counter, equals(1));
+      debounceIt(() => Debounce.duration(debounceDuration, _target, [2]));
+      Debounce.runAndClear(_target);
+      await Future.delayed(debounceDuration);
+      expect(_counter, equals(2));
     });
 
-    test('Should NOT increment counter before specified duration', () {
-      debounceIt(Debounce.seconds, target, seconds: debounceSeconds);
-      expect(counter, equals(0));
-    });
-  });
-
-  group('`Debounce.runAndClear', () {
-    int counter;
-    setUp(() => counter = 0);
-    int target([int increment = 1]) => counter = counter + increment;
-
-    test('Should immediately execute debounced target', () async {
-      final future = debounceIt(Debounce.seconds, target, seconds: debounceSeconds);
-      Debounce.runAndClear(target);
-      await future;
-      expect(counter, equals(1));
+    test('Should run debounced target with same named arguments', () async {
+      debounceIt(() => Debounce.duration(
+          debounceDuration, _targetNamedOnly, [], {Symbol("multiplier"): 2}));
+      Debounce.runAndClear(_targetNamedOnly);
+      await Future.delayed(debounceDuration);
+      expect(_counter, equals(2));
     });
 
-    test('Should execute debounced target with new args', () async {
-      final future = debounceIt(Debounce.seconds, target, seconds: debounceSeconds);
-      Debounce.runAndClear(target, [2]);
-      await future;
-      expect(counter, equals(2));
+    test('Should run debounced target with same positional and named arguments',
+        () async {
+      debounceIt(() => Debounce.duration(
+          debounceDuration, _target, [2], {Symbol("multiplier"): 2}));
+      Debounce.runAndClear(_target);
+      await Future.delayed(debounceDuration);
+      expect(_counter, equals(4));
     });
 
-
-    test('Should NOT execute after being cleared', () async {
-      final future =
-          debounceIt(Debounce.seconds, target, seconds: debounceSeconds);
-      Debounce.runAndClear(target);
-      await future;
-      expect(counter, equals(1));
+    test('Should run debounced target with new positional arugments', () async {
+      debounceIt(() => Debounce.duration(debounceDuration, _target, [3]));
+      Debounce.runAndClear(_target);
+      await Future.delayed(debounceDuration);
+      expect(_counter, equals(3));
     });
-  });
 
-  group('`Debounce.clear', () {
-    int counter;
-    setUp(() => counter = 0);
-    int target() => counter = counter + 1;
+    test('Should run debounced target with new named arguments', () async {
+      debounceIt(() => Debounce.duration(
+          debounceDuration, _targetNamedOnly, [], {Symbol("multiplier"): 3}));
+      Debounce.runAndClear(_targetNamedOnly);
+      await Future.delayed(debounceDuration);
+      expect(_counter, equals(3));
+    });
 
-    test('Should cancel debounced target', () {
-      debounceIt(Debounce.seconds, target, seconds: debounceSeconds);
-      Debounce.clear(target);
-      expect(counter, equals(0));
+    test('Should run debounced target with new positional and named arguments',
+        () async {
+      debounceIt(() => Debounce.duration(
+          debounceDuration, _target, [3], {Symbol("multiplier"): 3}));
+      Debounce.runAndClear(_target);
+      await Future.delayed(debounceDuration);
+      expect(_counter, equals(9));
     });
   });
 }
