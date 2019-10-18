@@ -1,6 +1,6 @@
 name: just_debounce_it
 description: A simple debounce library for preventing continuous execution of functions
-version: 3.0.0+1
+version: 3.0.0+2
 homepage: https://github.com/truthmast/just_debounce_it
 author: Matt Hurst <matt@workpail.com>
 
