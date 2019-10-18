@@ -68,7 +68,7 @@ void main() {
 
       test('Should NOT increment counter before specified duration', () {
         debounceIt(() => Debounce.duration(
-            debounceDuration, _target, [], {Symbol("multiplier"): 2}));
+            debounceDuration, _targetNamedOnly, [], {Symbol("multiplier"): 2}));
         expect(_counter, equals(0));
       });
     });
@@ -89,7 +89,7 @@ void main() {
     });
   });
 
-  group('`Debounce.milliseconds', () {
+  group('Debounce.milliseconds', () {
     group('without arguments', () {
       test('Should increment counter only once after repeated calls to target',
           () async {
@@ -152,7 +152,7 @@ void main() {
     });
   });
 
-  group('`Debounce.seconds', () {
+  group('Debounce.seconds', () {
     group('without arguments', () {
       test('Should increment counter only once after repeated calls to target',
           () async {
