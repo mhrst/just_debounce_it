@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.0.0+2
+  * Fixed a test that didn't fail but wasn't correct
+
 ## 3.0.0+1
   * Moved repo to main github account (@truthmast)
   * Allow the use of named arguments
