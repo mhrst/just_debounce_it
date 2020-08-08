@@ -10,7 +10,7 @@ Debounce.milliseconds(1000, print, ["Debounce World!"]);
 
 ## Static methods
 
-There are three methods available for debouncing. All methods differ only by the first parameter used to specify timeout values in different formats:
+There are three methods available for debouncing. All methods differ only by the first parameter used to specify timeout values in different formats. The `target` Function provided must be the same object every time `Debounce` is called.
 
 ```dart
 Debounce.seconds(int timeoutSeconds, 
