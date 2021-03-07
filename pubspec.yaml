@@ -1,7 +1,9 @@
 name: just_debounce_it
 description: A simple debounce library for preventing continuous execution of functions
-version: 4.0.0+1
+version: 4.0.0+2
 homepage: https://github.com/mhrst/just_debounce_it
+repository: https://github.com/mhrst/just_debounce_it
+issue_tracker: https://github.com/mhrst/just_debounce_it/issues
 
 environment:
   sdk: '>=2.12.0 <3.0.0'

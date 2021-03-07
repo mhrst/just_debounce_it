@@ -1,4 +1,7 @@
 # Changelog
+## 4.0.0+2
+  * Added repository and issue-tracker to pubspec
+
 ## 4.0.0+1
   * Fixed homepage in pubspec.yaml
 
