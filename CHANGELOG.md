@@ -1,4 +1,7 @@
 # Changelog
+## 4.0.0+1
+  * Fixed homepage in pubspec.yaml
+
 ## 4.0.0
   * Migrated to null-safety
 
