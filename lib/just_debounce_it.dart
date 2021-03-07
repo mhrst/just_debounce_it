@@ -7,20 +7,16 @@ Map<Function, _DebounceTimer> timeouts = <Function, _DebounceTimer>{};
 
 /// A collection of of static functions to debounce calls to a target function.
 class Debounce {
-  /// Calls [duration] with a timeout specified in milliseconds.
-  static void milliseconds(int timeoutMs, Function target,
-      [List<dynamic> positionalArguments,
-      Map<Symbol, dynamic> namedArguments]) {
-    duration(Duration(milliseconds: timeoutMs), target, positionalArguments,
-        namedArguments);
-  }
+  /// Clear a function that has been debounced. Returns [true] if
+  /// a debounced function has been removed.
+  static bool clear(Function target) {
+    if (timeouts.containsKey(target)) {
+      timeouts[target]?.cancel();
+      timeouts.remove(target);
+      return true;
+    }
 
-  /// Calls [duration] with a timeout specified in seconds.
-  static void seconds(int timeoutSeconds, Function target,
-      [List<dynamic> positionalArguments,
-      Map<Symbol, dynamic> namedArguments]) {
-    duration(Duration(seconds: timeoutSeconds), target, positionalArguments,
-        namedArguments);
+    return false;
   }
 
   /// Calls [target] with the latest supplied [positionalArguments] and [namedArguments]
@@ -29,16 +25,24 @@ class Debounce {
   /// Repeated calls to [duration] (or any debounce operation in this library)
   /// with the same [Function target] will reset the specified [timeout].
   static void duration(Duration timeout, Function target,
-      [List<dynamic> positionalArguments,
-      Map<Symbol, dynamic> namedArguments]) {
+      [List<dynamic> positionalArguments = const [],
+      Map<Symbol, dynamic> namedArguments = const {}]) {
     if (timeouts.containsKey(target)) {
-      timeouts[target].cancel();
+      timeouts[target]?.cancel();
     }
 
     final _DebounceTimer timer =
         _DebounceTimer(timeout, target, positionalArguments, namedArguments);
 
     timeouts[target] = timer;
+  }
+
+  /// Calls [duration] with a timeout specified in milliseconds.
+  static void milliseconds(int timeoutMs, Function target,
+      [List<dynamic> positionalArguments = const [],
+      Map<Symbol, dynamic> namedArguments = const {}]) {
+    duration(Duration(milliseconds: timeoutMs), target, positionalArguments,
+        namedArguments);
   }
 
   /// Run a function which is already debounced (queued to be run later),
@@ -48,30 +52,25 @@ class Debounce {
   /// If [positionalArguments] and [namedArguments] is not null or empty,
   /// a new version of [target] will be called with those arguments.
   static void runAndClear(Function target,
-      [List<dynamic> positionalArguments,
-      Map<Symbol, dynamic> namedArguments]) {
+      [List<dynamic> positionalArguments = const [],
+      Map<Symbol, dynamic> namedArguments = const {}]) {
     if (timeouts.containsKey(target)) {
-      if (positionalArguments?.isNotEmpty == true ||
-          namedArguments?.isNotEmpty == true) {
-        timeouts[target].cancel();
+      if (positionalArguments.isNotEmpty || namedArguments.isNotEmpty) {
+        timeouts[target]?.cancel();
         Function.apply(target, positionalArguments, namedArguments);
       } else {
-        timeouts[target].runNow();
+        timeouts[target]?.runNow();
       }
       timeouts.remove(target);
     }
   }
 
-  /// Clear a function that has been debounced. Returns [true] if
-  /// a debounced function has been removed.
-  static bool clear(Function target) {
-    if (timeouts.containsKey(target)) {
-      timeouts[target].cancel();
-      timeouts.remove(target);
-      return true;
-    }
-
-    return false;
+  /// Calls [duration] with a timeout specified in seconds.
+  static void seconds(int timeoutSeconds, Function target,
+      [List<dynamic> positionalArguments = const [],
+      Map<Symbol, dynamic> namedArguments = const {}]) {
+    duration(Duration(seconds: timeoutSeconds), target, positionalArguments,
+        namedArguments);
   }
 }
 
@@ -84,17 +83,17 @@ class _DebounceTimer {
   final Map<Symbol, dynamic> namedArguments;
 
   _DebounceTimer(Duration timeout, this.target,
-      [this.positionalArguments, this.namedArguments])
+      [this.positionalArguments = const [], this.namedArguments = const {}])
       : timer = Timer(timeout, () {
           Function.apply(target, positionalArguments, namedArguments);
         });
 
+  void cancel() {
+    timer.cancel();
+  }
+
   void runNow() {
     cancel();
     Function.apply(target, positionalArguments, namedArguments);
-  }
-
-  void cancel() {
-    timer.cancel();
   }
 }

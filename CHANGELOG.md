@@ -1,4 +1,6 @@
 # Changelog
+## 4.0.0
+  * Migrated to null-safety
 
 ## 3.0.0+2
   * Fixed a test that didn't fail but wasn't correct
