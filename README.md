@@ -1,6 +1,6 @@
 # just_debounce_it
 
-A simple debounce library.
+A simple debounce library. Supports debouncing by function and stream debouncing.
 
 ```dart
 import 'package:just_debounce_it/just_debounce_it.dart';
@@ -47,6 +47,25 @@ Debounce.clear(
     [List<dynamic> positionalArguments, 
     Map<Symbol, dynamic> namedArguments])
 ```
+
+## Stream Debouncing
+
+Use `DebounceStreamTransfomer` to debounce any stream by a specified duration.
+
+```dart
+DebounceStreamTransfomer(Duration timeout)
+```
+```dart
+DebounceStreamTransfomer.seconds(int timeoutSeconds)
+```
+```dart
+DebounceStreamTransfomer.milliseconds(int timeoutMs)
+```
+
+```dart
+Stream debounceStream(Stream input) => input.transform(DebounceStreamTransfomer.seconds(1));
+```
+
 
 ## Example
 
