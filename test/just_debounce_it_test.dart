@@ -11,12 +11,15 @@ void main() {
   final debounceDuration = Duration(seconds: debounceSeconds);
 
   int _counter = 0;
-  setUp(() => _counter = 0);
+
   int _targetNoArgs() => _counter = _counter + 1;
   int _target(int incrementBy, {int multiplier = 1}) =>
       _counter = (_counter + incrementBy) * multiplier;
   int _targetNamedOnly({int multiplier = 1}) =>
       _counter = (_counter + 1) * multiplier;
+
+  setUp(() => _counter = 0);
+
   tearDown(() {
     Debounce.clear(_target);
     Debounce.clear(_targetNoArgs);
@@ -28,6 +31,33 @@ void main() {
     for (var i = 0; i < debounceIterations; i++) {
       debounceFn();
     }
+  }
+
+  /// Produces events faster than [t.duration]
+  ///
+  /// Returns the duration of the stream in milliseconds
+  int debounceStream(DebounceStreamTransformer t) {
+    int _ms = 0;
+
+    // Stream values every 1/100 of [DebounceStreamTransformer.duration]
+    int _periodMs = t.duration.inMilliseconds ~/ 100;
+
+    final sc = StreamController();
+    Timer.periodic(Duration(milliseconds: _periodMs), (timer) {
+      _ms += _periodMs;
+      sc.add(_ms);
+
+      // Close stream after _periodMs * debounceIterations
+      if (_ms == _periodMs * debounceIterations) {
+        timer.cancel();
+        sc.close();
+      }
+    });
+
+    // Increment counter when stream emits value
+    sc.stream.transform(t)..listen((event) => _counter++);
+
+    return _periodMs * debounceIterations;
   }
 
   group('Debounce.duration', () {
@@ -275,6 +305,32 @@ void main() {
       Debounce.runAndClear(_target);
       await Future.delayed(debounceDuration);
       expect(_counter, equals(9));
+    });
+  });
+
+  group('DebounceStreamTransformer', () {
+    test('Should debounce stream by duration', () async {
+      final durationMs = debounceStream(
+          DebounceStreamTransformer(Duration(seconds: debounceSeconds)));
+      await Future.delayed(
+          Duration(milliseconds: durationMs + debounceMilliseconds + 100));
+      expect(_counter, equals(1));
+    });
+
+    test('Should throttle stream by seconds', () async {
+      final durationMs =
+          debounceStream(DebounceStreamTransformer.seconds(debounceSeconds));
+      await Future.delayed(
+          Duration(milliseconds: durationMs + debounceMilliseconds + 100));
+      expect(_counter, equals(1));
+    });
+
+    test('Should throttle stream by milliseconds', () async {
+      final durationMs = debounceStream(
+          DebounceStreamTransformer.milliseconds(debounceMilliseconds));
+      await Future.delayed(
+          Duration(milliseconds: durationMs + debounceMilliseconds + 100));
+      expect(_counter, equals(1));
     });
   });
 }
