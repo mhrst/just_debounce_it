@@ -1,6 +1,10 @@
 # Changelog
+
+## 4.1.0+1
+  * Fix documentation and changelog
+
 ## 4.1.0
-  * * Add support for debouncing streams with DebounceStreamTransformer
+  * Add support for debouncing streams with DebounceStreamTransformer
 
 ## 4.0.0+2
   * Added repository and issue-tracker to pubspec

@@ -29,7 +29,7 @@ class DebounceStreamTransformer<T> extends StreamTransformerBase<T, T> {
     return controller.stream;
   }
 
-  /// An empty target method to keep track of [Debounce]
+  /// Adds an event to the stream returned by [bind]
   void _addEvent(T event) {
     controller.add(event);
   }
