@@ -1,6 +1,7 @@
 library just_debounce_it;
 
 import 'dart:async';
+export 'streams/debounce_stream_transformer.dart';
 
 /// Map of functions currently being debounced.
 Map<Function, _DebounceTimer> timeouts = <Function, _DebounceTimer>{};
@@ -28,22 +29,23 @@ class Debounce {
       [List<dynamic> positionalArguments = const [],
       Map<Symbol, dynamic> namedArguments = const {}]) {
     if (timeouts.containsKey(target)) {
-      timeouts[target]?.cancel();
+      clear(target);
     }
 
-    final _DebounceTimer timer =
+    final timer =
         _DebounceTimer(timeout, target, positionalArguments, namedArguments);
-
     timeouts[target] = timer;
   }
 
   /// Calls [duration] with a timeout specified in milliseconds.
-  static void milliseconds(int timeoutMs, Function target,
-      [List<dynamic> positionalArguments = const [],
-      Map<Symbol, dynamic> namedArguments = const {}]) {
-    duration(Duration(milliseconds: timeoutMs), target, positionalArguments,
-        namedArguments);
-  }
+  static void milliseconds(
+    int timeoutMs,
+    Function target, [
+    List<dynamic> positionalArguments = const [],
+    Map<Symbol, dynamic> namedArguments = const {},
+  ]) =>
+      duration(Duration(milliseconds: timeoutMs), target, positionalArguments,
+          namedArguments);
 
   /// Run a function which is already debounced (queued to be run later),
   /// but run it now. This also cancels and clears out the timeout for
@@ -66,12 +68,14 @@ class Debounce {
   }
 
   /// Calls [duration] with a timeout specified in seconds.
-  static void seconds(int timeoutSeconds, Function target,
-      [List<dynamic> positionalArguments = const [],
-      Map<Symbol, dynamic> namedArguments = const {}]) {
-    duration(Duration(seconds: timeoutSeconds), target, positionalArguments,
-        namedArguments);
-  }
+  static void seconds(
+    int timeoutSeconds,
+    Function target, [
+    List<dynamic> positionalArguments = const [],
+    Map<Symbol, dynamic> namedArguments = const {},
+  ]) =>
+      duration(Duration(seconds: timeoutSeconds), target, positionalArguments,
+          namedArguments);
 }
 
 // _DebounceTimer allows us to keep track of the target function
@@ -82,9 +86,12 @@ class _DebounceTimer {
   final List<dynamic> positionalArguments;
   final Map<Symbol, dynamic> namedArguments;
 
-  _DebounceTimer(Duration timeout, this.target,
-      [this.positionalArguments = const [], this.namedArguments = const {}])
-      : timer = Timer(timeout, () {
+  _DebounceTimer(
+    Duration timeout,
+    this.target, [
+    this.positionalArguments = const [],
+    this.namedArguments = const {},
+  ]) : timer = Timer(timeout, () {
           Function.apply(target, positionalArguments, namedArguments);
         });
 
@@ -93,7 +100,7 @@ class _DebounceTimer {
   }
 
   void runNow() {
-    cancel();
+    timer.cancel();
     Function.apply(target, positionalArguments, namedArguments);
   }
 }
